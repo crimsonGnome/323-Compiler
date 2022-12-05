@@ -241,7 +241,18 @@ bool trace(vector<string> input,vector<vector<string>> parsingTable){
         string result = parsingTable[row][column];
         cout << "row/column [" << row << "," << column << "] result "<< result << endl;
         // Reject if got an empty state
-        if(result == "") return false;
+        if(result == ""){
+          if(column == 4){
+            cout << "; is missing\n";
+          } else if (column == 7){
+            cout << "( is missing\n";
+          } else if (column == 6){
+            cout << ", is missing\n";
+          } else if (column == 8){
+            cout << ") is missing\n";
+          }
+          return false;
+        } 
         // Read state
         if(result[0] == 'S'){
             theStack.push(std::to_string(row));
@@ -292,7 +303,11 @@ int main(){
     string finalTextString;
 
     bool commentFlag = false;
-
+    // TODO: change my simple thing to do error handling
+        // grabbing line, use commentFlag in get line. 
+        // if line is not empty makes sure it ends with ; or (end. begin or var is the line)
+    // TODO: Add line by line check for commas as well
+      // hard code these rules 
     while(file >> input){
         inputTemp.append(input);
     }
@@ -328,10 +343,12 @@ int main(){
         contains_program = !contains_program;
         inputVector.push_back(temp);
         inputTemp += temp + " ";
-    } else {
-        cout << "Does not contain program";
     }
     // preparing the for input into function;
+    // TODO: add a check if its ( or ) count to make sure even
+          // + if ( 
+          // - if )
+          // a non zwro count will show me if its unbalced 
     for(auto i = input.begin()+ 7; i != input.end(); ++i){
         // if its close to the end of the sting start checking these
         int it = input.end() - i;
@@ -415,6 +432,12 @@ int main(){
     }
     
     // Error Control
+    if(!contains_program){
+      cout << "program is expexcted";
+      return 0;
+      
+    }
+
     if(!contains_var){
       cout << "Does not contain var";
       return 0;

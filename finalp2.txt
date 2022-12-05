@@ -1,4 +1,4 @@
-program f2022 ;
+2022 ;
 var
 a1 , b2a , bc , ba2 : integer ;
 begin
