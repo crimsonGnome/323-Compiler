@@ -341,83 +341,6 @@ int main(){
 
     bool commentFlag = false;
 
-    // while(getline(file, input)){  
-    //     // TODO: whtie Space elimnator after comments are taken out.
-
-    //     // Step 1 Remove all the white space from the beginning of the string
-    //     int counter = 0;
-    //     string temp, newString;
-    //     // remove front white space in the beginning 
-    //     for(auto i = input.begin(); i != input.end(); ++i){
-    //         if(isspace(*i)){
-    //             ++counter;
-    //         } else {
-    //             break;
-    //         }
-    //     }
-    //     temp = input.substr(counter, input.size());
-        
-    //     // step 2 check if their is a comment code
-    //     if(temp[0] == '*' && temp[1] == '*') commentFlag = !commentFlag;
-    //     // if comment Flag is true, dont add line
-    //     // it then searches to find the next chunck of comment to then start writing code
-    //     if(commentFlag){
-    //         // destroy comment section
-    //         counter = 2;
-    //         for(auto i = temp.begin()+ 2; i != temp.end(); ++i){
-    //             if(i == (temp.end() -1)){
-    //                 ++counter;
-    //                 break;
-    //             } 
-    //             if(*i == '*' && *(i + 1) == '*'){ 
-    //                 ++counter;
-    //                 ++counter;
-    //                 commentFlag = !commentFlag;
-    //                 break;
-    //             }
-    //             ++counter;
-    //         }
-    //         newString = temp.substr(counter, temp.size());
-    //         if(newString.empty()) continue;
-    //      } else {
-    //         // if comments are on first line remove those 2 comments 
-    //         if(temp[0] == '*' && temp[1] == '*') {
-    //             // remove whtie space
-    //             if(isspace(temp[3])){
-    //                 temp = temp.substr(3, temp.size()-1);
-    //             } else {
-    //                 temp = temp.substr(2, temp.size()-1);
-    //             }
-    //         }
-    //      }
-
-
-    //     // loop over rest of string to find white spaces and remove 
-    //     for(auto i = temp.begin(); i != temp.end(); ++i){
-    //         if(i == (temp.end() -1)){
-    //             newString.push_back(*i);
-    //             break;
-    //         } 
-    //         if(isspace(*i) && isspace(*(i+1))) continue;
-    //         if(*i == '*' && *(i+1) == '*'){
-    //             commentFlag = !commentFlag;
-    //             ++i;
-    //         } else if(!commentFlag){
-    //             newString.push_back(*i);
-    //         }
-            
-
-
-    //     // loop over strings that have comments in it
-
-    //      }
-        
-    //     if(!newString.empty()){
-    //         finalTextString.append(newString);
-    //         finalp2 << newString << endl;
-    //     }
-
-    // }
     while(file >> input){
         inputTemp.append(input);
     }
@@ -444,6 +367,7 @@ int main(){
     bool contains_interger= false;
     bool contains_print = false;
     input.clear();
+    inputTemp.clear();
     input = finalTextString;
     
     // for loop to blow up text
@@ -451,80 +375,122 @@ int main(){
     if(temp == "program"){
         contains_program = !contains_program;
         inputVector.push_back(temp);
+        inputTemp += temp + " ";
     } else {
-        cout << "Does not contain program"
+        cout << "Does not contain program";
     }
-    // preparing the textfile;
+    // preparing the for input into function;
     for(auto i = input.begin()+ 7; i != input.end(); ++i){
         // if its close to the end of the sting start checking these
-        if(i == (input.end() -7)){
-            if(!contains_var){
-                if(i == (input.end() -2)){
-                    cout << "Does not contain var";
-                    return 0;
-                }
-            }
-            if(!contains_begin){
-                if(i == (input.end() -4)){
-                    cout << "Does not contain begin";
-                    return 0;
-                }
-            }
-            if(!contains_end){
-                if(i == (input.end() -3)){
-                    cout << "Does not contain end.";
-                    return 0;
-                }
-            }
-            if(!contains_print){
-                if(i == (input.end() -4)){
-                    cout << "Does not contain print";
-                    return 0;
-                }
-            }
-            if(!contains_interger){
-                if(i == (input.end() -2)){
-                    cout << "Does not contain interger";
-                    return 0;
-                }
-            }
-        }
-        
-        if(*i == 'v' && *(i+1)== 'a' && *(i+2)== 'r') {
+        int it = input.end() - i;
+        if(it > 3 && *i == 'v' && *(i+1)== 'a' && *(i+2)== 'r') {
             inputVector.push_back("var");
-            if(!contains_print) contains_print = !contains_print;
+            // insert into file
+            inputTemp += "var";
+            finalp2 << inputTemp << endl;;
+            inputTemp ="";
+
+            if(!contains_var) contains_var = !contains_var;
             advance(i,2);
             continue;
         }
-        if(*i == 'p' && *(i+1)== 'r' && *(i+2)== 'i' && *(i+3)== 'n'&& *(i+4)== 't') {
+        if(it > 5 &&*i == 'p' && *(i+1)== 'r' && *(i+2)== 'i' && *(i+3)== 'n'&& *(i+4)== 't') {
             inputVector.push_back("print");
+            inputTemp += "print ";
             if(!contains_print) contains_print = !contains_print;
             advance(i,4);
             continue;
         }
-        if(*i == 'b' && *(i+1)== 'e' && *(i+2)== 'g' && *(i+3)== 'i' && *(i+4)== 'n') {
+        if(it > 5 &&*i == 'b' && *(i+1)== 'e' && *(i+2)== 'g' && *(i+3)== 'i' && *(i+4)== 'n') {
             inputVector.push_back("begin");
+            inputTemp += "begin";
+            finalp2 << inputTemp << endl;
+            inputTemp ="";
             if(!contains_begin) contains_begin = !contains_begin;
             advance(i,4);
             continue;
         }
-        if(*i == '"' && *(i+1)== 'v' && *(i+2)== 'a' && *(i+3)== 'l' && *(i+4)== 'u' && *(i+5)== 'e' && *(i+6)== '"') {
-            inputVector.push_back("\"value\"");
+        if(*i == 'e' && *(i+1)== 'n' && *(i+2)== 'd' && *(i+3)== '.') {
+            inputVector.push_back("end.");
+            inputTemp += "end.";
+            finalp2 << inputTemp << endl;;
+            inputTemp ="";
+            if(!contains_end) contains_end = !contains_end;
+            advance(i,3);
+            continue;
+        }
+        if(it > 11 &&*(i+3)== 'v' && *(i+4)== 'a' && *(i+5)== 'l' && *(i+6)== 'u' && *(i+7)== 'e') {
+            inputVector.push_back("\"value=\"");
+            inputTemp += "\"value=\"";
+            advance(i,11);
+            continue;
+        }
+        if(it > 7 &&*i == 'i' && *(i+1)== 'n' && *(i+2)== 't' && *(i+3)== 'e' && *(i+4)== 'g' && *(i+5)== 'e' && *(i+6)== 'r') {
+            inputVector.push_back("integer");
+            inputTemp += "integer";
+            if(!contains_interger) contains_interger = !contains_interger;
             advance(i,6);
             continue;
         }
-        if(*i == 'i' && *(i+1)== 'n' && *(i+2)== 't' && *(i+3)== 'e' && *(i+4)== 'g' && *(i+5)== 'e' && *(i+6)== 'r') {
-            inputVector.push_back("integer");
-            advance(i,6);
-            continue;
+        if(*i == ';'){
+          inputTemp += " ;";
+          finalp2 << inputTemp << endl;
+          inputTemp ="";
+        } else if( *i == ','){
+          inputTemp += " , ";
+        } else if( *i == ':'){
+          inputTemp += " : ";
+        } else if( *i == '='){
+          inputTemp += " = ";
+        } 
+        else if( *i == '-'){
+          inputTemp += " - ";
+        }
+        else if( *i == '+'){
+          inputTemp += " + ";
+        }
+        else if( *i == '*'){
+          inputTemp += " * ";
+        }
+        else if( *i == '/'){
+          inputTemp += " / ";
+        } else {
+          inputTemp += *i;
         }
         temp.clear();
         temp += *i;
-
         inputVector.push_back(temp);
-
-
     }
+    
+    // Error Control
+    if(!contains_var){
+      cout << "Does not contain var";
+      return 0;
+      
+    }
+    if(!contains_begin){
+      cout << "Does not contain begin";
+      return 0;
+    }
+    if(!contains_end){
+      cout << "Does not contain end.";
+      return 0;
+      
+    }
+    if(!contains_print){
+      cout << "Does not contain print";
+      return 0;
+    }
+    if(!contains_interger){
+      cout << "Does not contain interger";
+      return 0;
+      
+    }
+
+    // for(auto i = inputVector.begin(); i != inputVector.end(); ++i){
+    //   cout << *i << endl;
+    // }
+    
 
     cout << finalTextString;
     finalp2.close();
@@ -533,7 +499,7 @@ int main(){
     // ======================== Start of section 2 ==============================
     input.clear();
     ifstream file2 ("finalp2.txt");
-    vector<string> inputVector;
+ 
 
     // getting fomated file into vector
     while(file2 >> input){ 
@@ -593,8 +559,8 @@ int main(){
             {"S23","S24","","","","","","S22","","","S35","S36","S37","S38","S39","S25","S26","S27","S28","S29","S30","S31","S32","S33","S34","","","","","","","","","","19","","","","","","","","","","55","15","17","18","21","20","74","12"},
             {"","","","","","","","","","","","","","","","","","","","","","","","","","","","","R16","","","","","","","","","","","","","","","","","","","","","","",""},
             {"","","","","","","","","","","S35","S36","S37","S38","S39","","","","","","","","","","","","","","","","","S13","","","57","","","","","","","","56","","","","","","","","","12"},
-            {"S23","S24","","","","","","S22","","","S35","S36","S37","S38","S39","S25","S26","S27","S28","S29","S30","S31","S32","S33","S34","","","","","","","","","","19","","","","","","","","","","58","15","17","18","21","20","74","12"},
-            {"S23","S24","","","","","","S22","","","S35","S36","S37","S38","S39","S25","S26","S27","S28","S29","S30","S31","S32","S33","S34","","","","","","","","","","19","","","","","","","","","","59","15","17","18","21","20","74","12"},
+            {"S23","S24","","","","","","S22","","","S35","S36","S37","S38","S39","S25","S26","S27","S28","S29","S30","S31","S32","S33","S34","","","","","","","","","","19","","","","","","","","","","14","58","17","18","21","20","74","12"},
+            {"S23","S24","","","","","","S22","","","S35","S36","S37","S38","S39","S25","S26","S27","S28","S29","S30","S31","S32","S33","S34","","","","","","","","","","19","","","","","","","","","","14","59","17","18","21","20","74","12"},
             {"S23","S24","","","","","","S22","","","S35","S36","S37","S38","S39","S25","S26","S27","S28","S29","S30","S31","S32","S33","S34","","","","","","","","","","19","","","","","","","","","","","","60","18","21","20","74","12"},
             {"S23","S24","","","","","","S22","","","S35","S36","S37","S38","S39","S25","S26","S27","S28","S29","S30","S31","S32","S33","S34","","","","","","","","","","19","","","","","","","","","","","","61","18","21","20","74","12"},
             {"R30","R30","R30","R30","R30","","","","R30","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""},
@@ -603,8 +569,8 @@ int main(){
             {"S49","S48","","","R68","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""},
             {"","","","","","","S62","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""},
             {"","","","","","","","","S63","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""},
-            {"S49","S48","","","R23","","","","R23","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""},
-            {"S49","S48","","","R24","","","","R24","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""},
+            {"S51","S50","R23","R23","R23","","","","R23","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""},
+            {"S51","S50","R24","R24","R24","","","","R24","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""},
             {"R26","R26","R26","R26","R26","","","","R26","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""},
             {"R27","R27","R27","R27","R27","","","","R27","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""},
             {"","","","","","","","","","","S35","S36","S37","S38","S39","","","","","","","","","","","","","","","","","","","","64","","","","","","","","","","","","","","","","","12"},
