@@ -7,8 +7,42 @@
 #include <string>
 #include <vector>
 #include <cctype>
+#include <map>
+
+#include "postFixExpression.hpp"
 
 using namespace std;
+
+int calculator(string expression){
+  int sum , parantheseLeft, parantheseRight = 0;
+  string left, middle, right;
+  for(auto i = expression.begin(); i != expression.end(); ++i){
+    if(*i == '('){
+      parantheseLeft = i - expression.begin();
+    }
+    if(*i == ')'){
+      parantheseLeft = i - expression.begin();
+    }
+  }
+  if(parantheseLeft == parantheseRight){
+    expression.push_back('$');
+    PostFixExpression summing(expression);
+    sum = summing.Sum();
+    return sum;
+  }
+  left = expression.substr(0, parantheseLeft);
+  middle = expression.substr(parantheseLeft, parantheseRight);
+  right = expression.substr(parantheseRight, expression.size()-1);
+  sum = calculator(middle, &key);
+  
+  // sum
+  middle.push_back('$');
+  PostFixExpression summing(middle);
+  sum = summing.Sum();
+  return sum;
+}
+
+
 int identifierToIndex(string column){
     int identity = -1;
     char temp = column[0];
@@ -670,10 +704,105 @@ int main(){
     // single loop. 
       // get var (we know they will be int)
     // then we go throught and do the operations 
+    cout << finalTextString;
+    contains_program = false;
+    bool contains_var = false;
+    bool contains_begin = false;
+    bool opperatorFlag = false;
+    string temp;
+    string identifier;
+    string expression;
 
+    std::map<string, int> var;
     
-
-
-    
+    for(auto i = finalTextString.begin(); i != finalTextString.end(); ++i){
+      if(*i == 'v' && *(i+1)== 'a' && *(i+2)== 'r') {
+            if(!contains_var) contains_var = !contains_var;
+            advance(i,3);
+            continue;
+      }
+      if(*i == 'b' && *(i+1)== 'e' && *(i+2)== 'g' && *(i+3)== 'i' && *(i+4)== 'n') {
+        if(contains_var) = !contains_var;
+        if(!contains_begin) contains_begin = !contains_begin;
+        advance(i,4);
+        continue;
+      }
+      // get a list of variables 
+      if(contains_var){
+        temp;
+        if(*i = ':'){
+          contains_var = false;
+          continue;
+        } 
+        for(auto j = i; j != finalTextString.end(); ++i){
+          if(*j == ',') {
+            i = j;
+            break;
+          } 
+          temp.push_back(*j);
+        }
+        var[temp] = 0;
+      }
+      if(contains_begin){
+        temp ="";
+        bool printFlag = false;
+        opperatorFlag = false;
+        for(auto j = i; j != finalTextString.end(); ++j){
+          if(j == ';' ){
+            i = j;
+            break;
+          };
+          if(*j == 'p' && *(j+1)== 'r' && *(j+2)== 'j' && *(j+3)== 'n'&& *(j+4)== 't'){
+            bool printFlag = true;
+            advance(j,5);
+            i = j;
+          }
+          // fires if the first character was a print 
+          if(printFlag){
+            if(i+1)== 'v' && *(i+2)== 'a' && *(i+3)== 'l' && *(i+4)== 'u' && *(i+5)== 'e'){
+              cout << "\"value=\"";
+              advance(j,6);
+            } else{
+              if(*j == ')'){
+                i = j;
+                advance(i,2);
+                cout << var[temp];
+                break;
+              }
+              temp.push_back(*j);
+            }
+          } else{
+            // print lines
+            if(!opperatorFlag){
+              if(j = '='){
+                opperatorFlag = true;
+                continue;
+              }
+              identifier.push_back(*j);
+            } else{
+              expression.push_back(*j);
+            }  
+            temp    
+          }
+          
+        }
+        if(printFlag) continue;
+        string newExpression;
+        for(auto j = expression.begin(); j != expression.end(); ++j){
+          string key;
+          for(auto k = j; k != expression.end(); ++k){
+            if(isalnum(*k)){
+              key.push_back(*k);
+            } else {
+              newExpression += var[key] + *k;
+              j=k;
+              break;
+            }
+          }
+        }
+        var[identifier] = calculator(newExpression);
+      } 
+    }
+ 
     return 0;
 }
