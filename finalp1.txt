@@ -1,9 +1,9 @@
-   prgram  f2022;
+   program  f2022;
     ** This program computes and prints the value
             of a given expression **
     var
         ** declare variables **
-        a1 ,       b2a ,       bc, ba2    : integer ;
+        a1 ,       b2a ,       bc,   ba2    : integer ;
     begin
         ** initialize variables **
             a1               = 3 ;

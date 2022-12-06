@@ -6,13 +6,14 @@
 #include <stack>
 #include <string>
 #include <vector>
+#include <cctype>
 
 using namespace std;
 int identifierToIndex(string column){
     int identity = -1;
     char temp = column[0];
     // only check if size is greater then 1
-    cout << "column: " << column << endl;
+    //cout << "column: " << column << endl;
     if(column.size() > 1){
         if(column == "program") return 25;
         if(column == "var") return 26;
@@ -83,7 +84,7 @@ int identifierToIndex(string column){
 std::pair<int, char> cardinality(string R){
     std::pair<int, char>  identity;
     int temp = std::stoi(R);
-    cout << temp;
+    //cout << temp;
     if(temp < 10){
       if(temp == 1){
         identity.first = 8;
@@ -222,7 +223,7 @@ bool trace(vector<string> input,vector<vector<string>> parsingTable){
     // push initial condition
     theStack.push("0");
     while( i < input.size()){
-        cout << "Current i: "<< input[i] << " "<< theStack.top() << " theStack.top() \n";
+        //cout << "Current i: "<< input[i] << " "<< theStack.top() << " theStack.top() \n";
         int row = std::stoi(theStack.top());
         theStack.pop();
         
@@ -239,7 +240,7 @@ bool trace(vector<string> input,vector<vector<string>> parsingTable){
         
 
         string result = parsingTable[row][column];
-        cout << "row/column [" << row << "," << column << "] result "<< result << endl;
+        //cout << "row/column [" << row << "," << column << "] result "<< result << endl;
         // Reject if got an empty state
         if(result == ""){
           if(column == 4){
@@ -267,9 +268,7 @@ bool trace(vector<string> input,vector<vector<string>> parsingTable){
             std::pair<int, char> cardinalityResult = cardinality(temp);
             // setting popped Items 
             int popItems = cardinalityResult.first * 2;
-            cout << "popedItems: " << popItems << endl;
             while(popItems > 0){
-                cout << "the statck top: " << theStack.top() << endl;
                 theStack.pop();
                 --popItems;
             }
@@ -292,40 +291,15 @@ bool trace(vector<string> input,vector<vector<string>> parsingTable){
     }
 }
 int main(){
-    // get data
+    // streams that will be used
     ifstream file ("finalp1.txt");
     ofstream finalp2 ("finalp2.txt");
-    // store the 
+    // prepare data that will be used 
     vector<string> final2;
     string input;
     string inputTemp;
     string temp;
     string finalTextString;
-
-    bool commentFlag = false;
-    // TODO: change my simple thing to do error handling
-        // grabbing line, use commentFlag in get line. 
-        // if line is not empty makes sure it ends with ; or (end. begin or var is the line)
-    // TODO: Add line by line check for commas as well
-      // hard code these rules 
-    while(file >> input){
-        inputTemp.append(input);
-    }
-    cout << inputTemp << endl;
-    for(auto i = inputTemp.begin(); i != inputTemp.end(); ++i){
-        if(i == (inputTemp.end() -1)){
-            finalTextString.push_back(*i);
-            break;
-        }
-        if(*i == '*' && *(i+1)== '*'){
-            commentFlag = !commentFlag;
-            ++i;
-            continue; 
-        }
-        if(!commentFlag){
-           finalTextString.push_back(*i);  
-        }
-    }
     vector<string> inputVector;
     bool contains_program = false;
     bool contains_var = false;
@@ -333,10 +307,125 @@ int main(){
     bool contains_end = false;
     bool contains_interger= false;
     bool contains_print = false;
-    input.clear();
-    inputTemp.clear();
-    input = finalTextString;
+    int paranthesisCounter = 0;
+    bool commentFlag = false;
     
+    // read from text file1  
+    while(getline(file, input)){
+        inputTemp.append(input);
+        inputTemp += "\n";
+    }
+    input = "";
+    // getting lines; and prepare copy for testing and copy removed of all whitespace 
+    for(auto i = inputTemp.begin(); i != inputTemp.end(); ++i){
+        if(i == (inputTemp.end() -1)){
+            input.push_back(*i);
+            if(!isspace(*i)) finalTextString.push_back(*i);
+            break;
+        }
+        if(*i == '*' && *(i+1)== '*'){
+            commentFlag = !commentFlag;
+            ++i;
+            continue; 
+        }
+        // elimnate double lines
+        if(*i == '\n' && *(i+1)== '\n'){
+            continue; 
+        }
+        if(!commentFlag){
+          // push for , adn ; counter
+          input.push_back(*i);
+          if(isspace(*i)) continue;
+          // push for actual function;
+          finalTextString.push_back(*i);
+        }
+        
+
+    }
+    inputTemp = input;
+    // count , in the var section; other will fail table 
+    bool commaFindaer = true;
+    for(auto i = inputTemp.begin(); i != inputTemp.end(); ++i){
+        if(i == (inputTemp.end() -1)){
+            break;
+        }
+        if(*i == 'v' && *(i+1)== 'a' && *(i+2)== 'r') {
+            // insert into file
+            if(!contains_var) contains_var = !contains_var;
+            advance(i,3);
+            continue;
+        }
+        if(contains_var){
+          if(isalnum(*i)){
+            if(!commaFindaer){
+              return 0;
+            }
+            if(isspace(*(i +1))){
+              commaFindaer = false;
+              continue;
+            }
+          } else {
+            if(*i == ':'){
+              break;
+            }
+            if(isspace(*i)) continue;
+            if(*i == ',') commaFindaer = true;
+            continue;
+          }
+          
+        }      
+        
+    }
+    inputTemp = finalTextString;
+    // loop 4 This checks ; at the end of the string
+    for(auto i = inputTemp.begin(); i != inputTemp.end(); ++i){
+      if(*i == 'v' && *(i+1)== 'a' && *(i+2)== 'r') {
+          if(*(i-1) != ';'){
+            cout << "missing ;";
+            return 0;
+          }
+      }
+      if(*i == 'i' && *(i+1)== 'n' && *(i+2)== 't' && *(i+3)== 'e' && *(i+4)== 'g' && *(i+5)== 'e' && *(i+6)== 'r') {
+          if(*(i+7) != ';'){
+            cout << "missing ;";
+            advance(i,7);
+            return 0;
+          }
+      }
+      if(*i == '=' || (*i == 'p' && *(i+1)== 'r' && *(i+2)== 'i' && *(i+3)== 'n'&& *(i+4)== 't')){
+        if(*i == 'p' && *(i+1)== 'r' && *(i+2)== 'i' && *(i+3)== 'n'&& *(i+4)== 't'){
+          advance(i,4);
+        }
+        for(auto j = i+1; j != inputTemp.end(); ++j){
+          if(*j == ';'){
+            i = j -1;
+            break;
+          }
+          if(*j == 'e' && *(j+1)== 'n' && *(j+2)== 'd' && *(j+3)== '.') {
+           cout << "missing ;";
+           return 0;
+          }
+          if(*j == 'p' && *(j+1)== 'r' && *(j+2)== 'j' && *(j+3)== 'n'&& *(j+4)== 't'){
+            cout << "missing ;";
+            return 0;
+          }
+          if(*(j)=='v' && *(j+1) == 'a' && *(j+2)== 'l' && *(j+3)== 'u' && *(j+4)== 'e' && *(j+5)== '='){
+            advance(j,5);
+            cout << "hit \"value=\" : " << *j;
+            continue;
+          }
+          if(*j == '='){
+            cout << "missing ;";
+            return 0;
+          }
+        }
+      
+      }
+    }
+    // need to remove all white space before doing this step
+    // put data into vector for function
+    input = finalTextString;
+    cout << input;
     // for loop to blow up text
     temp = input.substr(0, 7);
     if(temp == "program"){
@@ -345,10 +434,6 @@ int main(){
         inputTemp += temp + " ";
     }
     // preparing the for input into function;
-    // TODO: add a check if its ( or ) count to make sure even
-          // + if ( 
-          // - if )
-          // a non zwro count will show me if its unbalced 
     for(auto i = input.begin()+ 7; i != input.end(); ++i){
         // if its close to the end of the sting start checking these
         int it = input.end() - i;
@@ -423,6 +508,12 @@ int main(){
         }
         else if( *i == '/'){
           inputTemp += " / ";
+        } else if( *i == '('){
+          ++paranthesisCounter;
+          inputTemp += *i;
+        }else if( *i == ')'){
+          --paranthesisCounter;
+          inputTemp += *i;
         } else {
           inputTemp += *i;
         }
@@ -431,36 +522,42 @@ int main(){
         inputVector.push_back(temp);
     }
     
-    // Error Control
+    // Error Control If these dont exist error out
     if(!contains_program){
       cout << "program is expexcted";
       return 0;
-      
     }
 
     if(!contains_var){
-      cout << "Does not contain var";
+      cout << "var is expected";
       return 0;
-      
     }
     if(!contains_begin){
-      cout << "Does not contain begin";
+      cout << "begin is expected";
       return 0;
     }
     if(!contains_end){
-      cout << "Does not contain end.";
+      cout << "end. is expected";
       return 0;
       
     }
     if(!contains_print){
-      cout << "Does not contain print";
+      cout << "print is expected";
       return 0;
     }
     if(!contains_interger){
-      cout << "Does not contain interger";
+      cout << "interger is expected";
       return 0;
-      
     }
+    // counts missing parentsis Error - if not 0 they are unbalanced
+    if(paranthesisCounter > 0){
+      cout << ") is missing";
+      return 0;
+    } else if (paranthesisCounter < 0){
+      cout << "( is missing";
+      return 0;
+    }
+    // Push $ to indicate final state
     inputVector.push_back("$");
     for(auto i = inputVector.begin(); i != inputVector.end(); ++i){
       cout << *i << endl;
@@ -565,8 +662,18 @@ int main(){
     } else {
       cout << endl << " REJECTED" << endl;
     }
+    // ============= END of Section 2 ==================================================================
+    // ============= Start of Section 3 ================================================================
+
+    // store in a hash map. 
+    // key is a string, value 
+    // single loop. 
+      // get var (we know they will be int)
+    // then we go throught and do the operations 
+
+    
 
 
-    // Section 1
+    
     return 0;
 }
