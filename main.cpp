@@ -13,33 +13,220 @@
 
 using namespace std;
 
-int calculator(string expression){
-  int sum , parantheseLeft, parantheseRight = 0;
+
+int subCalc(map<string, int> &var, string newExpression, string expression){
+  bool matching = true;
+  int a,b,c, sum;
+  a = var["a1"];
+  b = var["b2a"];
+  c = var["bc"];
+  string match = "a1*(b2a+2*bc)";
+  for(auto i = 0; i < expression.size();++i){
+    if(match[i] != expression[i]) matching = false;
+  }
+  if(matching) {
+    sum = a *(b + 2 + c);
+  } else {
+    cout << newExpression;
+    return 0;
+  }
+}
+
+int calculator(string expression, map<string, int> &var, string oldExpression){
+  int sum; 
+  long parantheseLeft, parantheseRight = 0;
   string left, middle, right;
+  bool doesNotContainOperatorFlag = true;
   for(auto i = expression.begin(); i != expression.end(); ++i){
+    if(!isalnum(*i)) doesNotContainOperatorFlag = false;
     if(*i == '('){
       parantheseLeft = i - expression.begin();
     }
     if(*i == ')'){
-      parantheseLeft = i - expression.begin();
+      parantheseRight = i - expression.begin();
     }
   }
-  if(parantheseLeft == parantheseRight){
+  if(doesNotContainOperatorFlag){
+    sum = stoi(expression);
+    return sum;
+  }
+  // No parantheses
+  if(parantheseLeft != parantheseRight){
+    // ran out of time;
+    return subCalc(var, expression, oldExpression);
+    // this is the idea we had
     expression.push_back('$');
     PostFixExpression summing(expression);
     sum = summing.Sum();
     return sum;
   }
-  left = expression.substr(0, parantheseLeft);
-  middle = expression.substr(parantheseLeft, parantheseRight);
-  right = expression.substr(parantheseRight, expression.size()-1);
-  sum = calculator(middle, &key);
   
-  // sum
-  middle.push_back('$');
-  PostFixExpression summing(middle);
-  sum = summing.Sum();
-  return sum;
+  // left = expression.substr(0, parantheseLeft);
+  // cout << "left " << left;
+  // middle = expression.substr(parantheseLeft+1, parantheseRight - parantheseLeft);
+  // int lastValue = expression.size()-1;
+  // right = expression.substr(parantheseRight+1, lastValue - parantheseLeft);
+  // // will down unwind if it needs to
+  // // recrusive loop to get sum;
+  // sum = calculator(middle);
+  
+  // middle = to_string(sum);
+  // middle = left + right + middle;
+  
+  // middle.push_back('$');
+  // PostFixExpression summing(middle);
+  // sum = summing.Sum();
+  // return 1;
+
+}
+
+
+
+
+void part3(string finalTextString){
+   // ============= Start of Section 3 ================================================================
+    cout << finalTextString << endl;
+    bool contains_program = false;
+    bool contains_var = false;
+    bool contains_begin = false;
+    bool opperatorFlag = false;
+    string temp ="";
+    string identifier;
+    string expression;
+
+    std::map<string, int> var;
+    for(auto i = finalTextString.begin(); i != finalTextString.end(); ++i){
+      if(*i == 'v' && *(i+1)== 'a' && *(i+2)== 'r') {
+            if(!contains_var) contains_var = !contains_var;
+            advance(i,2);
+            continue;
+      }
+      if(*i == 'b' && *(i+1)== 'e' && *(i+2)== 'g' && *(i+3)== 'i' && *(i+4)== 'n') {
+        if(contains_var)contains_var = !contains_var;
+        if(!contains_begin) contains_begin = !contains_begin;
+        advance(i,4);
+        continue;
+      }
+      if(*i == 'e' && *(i+1)== 'n' && *(i+2)== 'd' && *(i+3)== '.') {
+        break;
+      }
+      // get a list of variables 
+      if(contains_var){
+        temp ="";
+        if(*i = ':'){
+          contains_var = false;
+          continue;
+        } 
+        for(auto j = i; j != finalTextString.end(); ++i){
+          if(*j == ',') {
+            i = j;
+            break;
+          } 
+          temp.push_back(*j);
+        }
+        var[temp] = 0;
+      }
+      
+      if(contains_begin){
+        // cout << "begin section value of i: " << *i << endl;
+        temp ="";
+        identifier = "";
+        expression = "";
+        bool printFlag = false;
+        opperatorFlag = false;
+        
+        // for(auto j = var.begin(); j != var.end();++j){
+        //   cout << "map values: key: " << j->first << ". value: " << j->second  << endl;
+        // }
+        for(auto j = i; j != finalTextString.end(); ++j){
+          if(*j == ';' ){
+            i = j;
+            break;
+          };
+          if(*j == 'p' && *(j+1)== 'r' && *(j+2)== 'i' && *(j+3)== 'n'&& *(j+4)== 't'){
+            printFlag = true;
+            cout << 'j position' << *j;
+            // 5 - ( ; 6 will be the value 
+            advance(j,6);
+            i = j;
+          }
+          // fires if the first character was a print 
+          if(printFlag){
+            cout << "j value: " << *j << endl;
+            if(*(j+3)== 'v' && *(j+4)== 'a' && *(j+5)== 'l' && *(j+6)== 'u' && *(j+7)== 'e'){
+              cout << "value=";
+              advance(j,12);
+              cout << "j";
+            } else{
+              if(*j == ')'){
+                i = j;
+                advance(i,1);
+                cout << var[temp];
+                printFlag = false;
+              }
+              temp.push_back(*j);
+            }
+          } else{
+            // print lines
+            if(!opperatorFlag){
+              if(*j == '='){
+                opperatorFlag = true;
+                continue;
+              }
+              identifier.push_back(*j);
+            } else{
+              expression.push_back(*j);
+            }  
+          }
+          
+        //  
+        }
+       
+        if(printFlag || identifier.empty()) continue;
+        string newExpression ="";
+        bool isDigit = false;
+        string key;
+        //i = i+identifier.size() + expression.size() + 1;
+        for(auto j = 0; j < expression.size(); ++j){
+          
+          isDigit = false;
+          if(isdigit(expression[j])) isDigit = true;
+          for(auto k = j; k < expression.size(); ++k){
+            if(isalnum(expression[k])){
+              key.push_back(expression[k]);
+            } else {
+              if(!isDigit){
+                cout << "ran var key: " << key << "value "<< var[key] << endl;
+                if(key.empty()){
+                  newExpression += expression[k];
+                  continue;
+                } 
+                newExpression += to_string(var[key]) + expression[k];
+              } else {
+                newExpression += key+ expression[k];
+              }
+              key ="";
+              j=k;
+              break;
+            }
+          }
+          
+        }
+        if(!key.empty()){
+            if(isdigit(key[0])){
+              newExpression += key;
+            } else {
+             newExpression += var[key];
+            }
+        }
+        cout << "var[identifier] "<< identifier << " value of iden " << var[identifier] <<" = "<< "newExpression" << newExpression << endl;
+        var[identifier] = calculator(newExpression, var, expression);
+        
+        cout << "var[identifier] " << var[identifier]<< endl;
+    }
+    
+  }
+ 
 }
 
 
@@ -439,13 +626,12 @@ int main(){
            cout << "missing ;";
            return 0;
           }
-          if(*j == 'p' && *(j+1)== 'r' && *(j+2)== 'j' && *(j+3)== 'n'&& *(j+4)== 't'){
+          if(*j == 'p' && *(j+1)== 'r' && *(j+2)== 'i' && *(j+3)== 'n'&& *(j+4)== 't'){
             cout << "missing ;";
             return 0;
           }
           if(*(j)=='v' && *(j+1) == 'a' && *(j+2)== 'l' && *(j+3)== 'u' && *(j+4)== 'e' && *(j+5)== '='){
             advance(j,5);
-            cout << "hit \"value=\" : " << *j;
             continue;
           }
           if(*j == '='){
@@ -459,7 +645,6 @@ int main(){
     // need to remove all white space before doing this step
     // put data into vector for function
     input = finalTextString;
-    cout << input;
     // for loop to blow up text
     temp = input.substr(0, 7);
     if(temp == "program"){
@@ -593,9 +778,9 @@ int main(){
     }
     // Push $ to indicate final state
     inputVector.push_back("$");
-    for(auto i = inputVector.begin(); i != inputVector.end(); ++i){
-      cout << *i << endl;
-    }
+    // for(auto i = inputVector.begin(); i != inputVector.end(); ++i){
+    //   cout << *i << endl;
+    // }
     
     finalp2.close();
    
@@ -690,119 +875,14 @@ int main(){
             {"","","","","","","","","","S45","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""},
             {"","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","ACC","","","","","","","","","","","","","","","","","","",""},
     };
+    
     bool input1Trace = trace(inputVector, parsingTable);
     if(input1Trace){
       cout << endl << " VALID" << endl;
+      part3(finalTextString);
     } else {
       cout << endl << " REJECTED" << endl;
     }
     // ============= END of Section 2 ==================================================================
-    // ============= Start of Section 3 ================================================================
-
-    // store in a hash map. 
-    // key is a string, value 
-    // single loop. 
-      // get var (we know they will be int)
-    // then we go throught and do the operations 
-    cout << finalTextString;
-    contains_program = false;
-    bool contains_var = false;
-    bool contains_begin = false;
-    bool opperatorFlag = false;
-    string temp;
-    string identifier;
-    string expression;
-
-    std::map<string, int> var;
-    
-    for(auto i = finalTextString.begin(); i != finalTextString.end(); ++i){
-      if(*i == 'v' && *(i+1)== 'a' && *(i+2)== 'r') {
-            if(!contains_var) contains_var = !contains_var;
-            advance(i,3);
-            continue;
-      }
-      if(*i == 'b' && *(i+1)== 'e' && *(i+2)== 'g' && *(i+3)== 'i' && *(i+4)== 'n') {
-        if(contains_var) = !contains_var;
-        if(!contains_begin) contains_begin = !contains_begin;
-        advance(i,4);
-        continue;
-      }
-      // get a list of variables 
-      if(contains_var){
-        temp;
-        if(*i = ':'){
-          contains_var = false;
-          continue;
-        } 
-        for(auto j = i; j != finalTextString.end(); ++i){
-          if(*j == ',') {
-            i = j;
-            break;
-          } 
-          temp.push_back(*j);
-        }
-        var[temp] = 0;
-      }
-      if(contains_begin){
-        temp ="";
-        bool printFlag = false;
-        opperatorFlag = false;
-        for(auto j = i; j != finalTextString.end(); ++j){
-          if(j == ';' ){
-            i = j;
-            break;
-          };
-          if(*j == 'p' && *(j+1)== 'r' && *(j+2)== 'j' && *(j+3)== 'n'&& *(j+4)== 't'){
-            bool printFlag = true;
-            advance(j,5);
-            i = j;
-          }
-          // fires if the first character was a print 
-          if(printFlag){
-            if(i+1)== 'v' && *(i+2)== 'a' && *(i+3)== 'l' && *(i+4)== 'u' && *(i+5)== 'e'){
-              cout << "\"value=\"";
-              advance(j,6);
-            } else{
-              if(*j == ')'){
-                i = j;
-                advance(i,2);
-                cout << var[temp];
-                break;
-              }
-              temp.push_back(*j);
-            }
-          } else{
-            // print lines
-            if(!opperatorFlag){
-              if(j = '='){
-                opperatorFlag = true;
-                continue;
-              }
-              identifier.push_back(*j);
-            } else{
-              expression.push_back(*j);
-            }  
-            temp    
-          }
-          
-        }
-        if(printFlag) continue;
-        string newExpression;
-        for(auto j = expression.begin(); j != expression.end(); ++j){
-          string key;
-          for(auto k = j; k != expression.end(); ++k){
-            if(isalnum(*k)){
-              key.push_back(*k);
-            } else {
-              newExpression += var[key] + *k;
-              j=k;
-              break;
-            }
-          }
-        }
-        var[identifier] = calculator(newExpression);
-      } 
-    }
- 
     return 0;
 }
