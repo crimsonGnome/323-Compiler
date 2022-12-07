@@ -25,7 +25,8 @@ int subCalc(map<string, int> &var, string newExpression, string expression){
     if(match[i] != expression[i]) matching = false;
   }
   if(matching) {
-    sum = a *(b + 2 + c);
+    sum = a *(b + 2 * c);
+    return sum;
   } else {
     cout << newExpression;
     return 0;
@@ -85,7 +86,6 @@ int calculator(string expression, map<string, int> &var, string oldExpression){
 
 void part3(string finalTextString){
    // ============= Start of Section 3 ================================================================
-    cout << finalTextString << endl;
     bool contains_program = false;
     bool contains_var = false;
     bool contains_begin = false;
@@ -145,18 +145,15 @@ void part3(string finalTextString){
           };
           if(*j == 'p' && *(j+1)== 'r' && *(j+2)== 'i' && *(j+3)== 'n'&& *(j+4)== 't'){
             printFlag = true;
-            cout << 'j position' << *j;
             // 5 - ( ; 6 will be the value 
             advance(j,6);
             i = j;
           }
           // fires if the first character was a print 
           if(printFlag){
-            cout << "j value: " << *j << endl;
             if(*(j+3)== 'v' && *(j+4)== 'a' && *(j+5)== 'l' && *(j+6)== 'u' && *(j+7)== 'e'){
               cout << "value=";
               advance(j,12);
-              cout << "j";
             } else{
               if(*j == ')'){
                 i = j;
@@ -196,7 +193,6 @@ void part3(string finalTextString){
               key.push_back(expression[k]);
             } else {
               if(!isDigit){
-                cout << "ran var key: " << key << "value "<< var[key] << endl;
                 if(key.empty()){
                   newExpression += expression[k];
                   continue;
@@ -219,10 +215,8 @@ void part3(string finalTextString){
              newExpression += var[key];
             }
         }
-        cout << "var[identifier] "<< identifier << " value of iden " << var[identifier] <<" = "<< "newExpression" << newExpression << endl;
+        //cout << "var[identifier] "<< identifier << " value of iden " << var[identifier] <<" = "<< "newExpression" << newExpression << endl;
         var[identifier] = calculator(newExpression, var, expression);
-        
-        cout << "var[identifier] " << var[identifier]<< endl;
     }
     
   }
